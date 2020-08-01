@@ -7,6 +7,7 @@ import tankrotationexample.GameConstants;
 import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 
 /**
  *
@@ -23,7 +24,8 @@ public class Tank{
 
     private final int R = 2;
     private final float ROTATIONSPEED = 3.0f;
-
+    private Rectangle hitBox;
+    private ArrayList<Bullet> ammo;
 
 
     private BufferedImage img;
@@ -31,6 +33,7 @@ public class Tank{
     private boolean DownPressed;
     private boolean RightPressed;
     private boolean LeftPressed;
+    private boolean ShootPressed;
 
 
     Tank(int x, int y, int vx, int vy, int angle, BufferedImage img) {
@@ -40,7 +43,8 @@ public class Tank{
         this.vy = vy;
         this.img = img;
         this.angle = angle;
-
+        this.hitBox = new Rectangle(x,y,this.img.getWidth(), this.img.getHeight());
+        this.ammo = new ArrayList<>();
     }
 
     void setX(int x){ this.x = x; }
@@ -66,6 +70,10 @@ public class Tank{
         this.LeftPressed = true;
     }
 
+    void toggleShootPressed() {
+        this.ShootPressed = true;
+    }
+
     void unToggleUpPressed() {
         this.UpPressed = false;
     }
@@ -82,6 +90,10 @@ public class Tank{
         this.LeftPressed = false;
     }
 
+    void unToggleShootPressed() {
+        this.ShootPressed = false;
+    }
+
     void update() {
         if (this.UpPressed) {
             this.moveForwards();
@@ -96,6 +108,11 @@ public class Tank{
         if (this.RightPressed) {
             this.rotateRight();
         }
+        if (this.ShootPressed && TRE.tick % 20 == 0) {
+            Bullet b = new Bullet(x,y,angle, TRE.bulletImage);
+            this.ammo.add(b);
+        }
+        this.ammo.forEach(bullet -> bullet.update());
     }
 
     private void rotateLeft() {
@@ -151,7 +168,9 @@ public class Tank{
         rotation.rotate(Math.toRadians(angle), this.img.getWidth() / 2.0, this.img.getHeight() / 2.0);
         Graphics2D g2d = (Graphics2D) g;
         g2d.drawImage(this.img, rotation, null);
+        this.ammo.forEach(bullet -> bullet.drawImage(g));
         g2d.setColor(Color.RED);
+        g2d.drawRect(x,y,this.img.getWidth(), this.img.getHeight());
 //        g2d.rotate(Math.toRadians(angle));
     }
 

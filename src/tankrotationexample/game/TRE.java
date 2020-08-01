@@ -29,10 +29,11 @@ import static javax.imageio.ImageIO.read;
 public class TRE extends JPanel implements Runnable {
 
     private BufferedImage world;
+    public static BufferedImage bulletImage;
     private Tank t1;
     private Tank t2;
     private Launcher lf;
-    private long tick = 0;
+    static long tick = 0;
 
     ArrayList<Wall> walls;
 
@@ -98,6 +99,7 @@ public class TRE extends JPanel implements Runnable {
              */
             t1img = read(Objects.requireNonNull(TRE.class.getClassLoader().getResource("Tank1.gif")));
             t2img = read(Objects.requireNonNull(TRE.class.getClassLoader().getResource("Tank2.gif")));
+            bulletImage = read(Objects.requireNonNull(TRE.class.getClassLoader().getResource("Shell.gif")));
             breakWall = read(Objects.requireNonNull(TRE.class.getClassLoader().getResource("Wall2.gif")));
             unBreakWall = read(Objects.requireNonNull(TRE.class.getClassLoader().getResource("Wall1.gif")));
 
