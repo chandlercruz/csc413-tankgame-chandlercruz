@@ -47,6 +47,9 @@ public class Tank{
 
     void setY(int y) { this. y = y;}
 
+    int getX(){return x;}
+    int getY(){return y;}
+
     void toggleUpPressed() {
         this.UpPressed = true;
     }
@@ -123,17 +126,17 @@ public class Tank{
 
 
     private void checkBorder() {
-        if (x < 30) {
-            x = 30;
+        if (x < 256) {
+            x = 256;
         }
-        if (x >= GameConstants.GAME_SCREEN_WIDTH - 88) {
-            x = GameConstants.GAME_SCREEN_WIDTH - 88;
+        if (x >= GameConstants.WORLD_WIDTH - 352) {
+            x = GameConstants.WORLD_WIDTH - 352;
         }
-        if (y < 40) {
-            y = 40;
+        if (y < 384) {
+            y = 384;
         }
-        if (y >= GameConstants.GAME_SCREEN_HEIGHT - 80) {
-            y = GameConstants.GAME_SCREEN_HEIGHT - 80;
+        if (y >= GameConstants.WORLD_HEIGHT - 448) {
+            y = GameConstants.WORLD_HEIGHT - 448;
         }
     }
 
@@ -148,6 +151,8 @@ public class Tank{
         rotation.rotate(Math.toRadians(angle), this.img.getWidth() / 2.0, this.img.getHeight() / 2.0);
         Graphics2D g2d = (Graphics2D) g;
         g2d.drawImage(this.img, rotation, null);
+        g2d.setColor(Color.RED);
+//        g2d.rotate(Math.toRadians(angle));
     }
 
 
