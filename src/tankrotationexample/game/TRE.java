@@ -57,8 +57,14 @@ public class TRE extends JPanel implements Runnable {
                  */
                for (Tank tank : this.tanks) {
                    if(tank.getHealth() <= 0) {
-                       this.lf.setFrame("end");
-                       return;
+                       if(tank.getLives() > 1) {
+                           tank.nextLife();
+
+                       }
+                       else {
+                           this.lf.setFrame("end");
+                           return;
+                       }
                    }
                }
 //                if(this.tick > 2000){
@@ -169,6 +175,7 @@ public class TRE extends JPanel implements Runnable {
         BufferedImage mm = world.getSubimage(224,352,GameConstants.WORLD_WIDTH-256, GameConstants.WORLD_HEIGHT-384);
         g2.drawImage(leftHalf,0,0,null);
         g2.drawImage(rightHalf,GameConstants.GAME_SCREEN_WIDTH/2,0,null);
+        HUD.displayHUD(tanks, g2);
         g2.scale(.10, .10);
         g2.drawImage(mm, 2112*2, 1056, null);
 

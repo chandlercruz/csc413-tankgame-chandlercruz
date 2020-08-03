@@ -31,7 +31,7 @@ public class CollisionDetector {
                 if(tank.getHitBox().intersects(bullet.getHitBox()) && bullet.getDeadly()) {
                     tank.setHealth(tank.getHealth()-1);
                     bullet.setExists(false);
-                    System.out.println( tank.toString() + " Health: " + tank.getHealth());
+                    System.out.println( tank.toString() + " Health: " + tank.getHealth() + " Lives: " + tank.getLives());
                 }
             });
 

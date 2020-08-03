@@ -15,12 +15,13 @@ import java.util.ArrayList;
  */
 public class Tank extends GameObject{
 
-
     private int x;
     private int y;
     private int vx;
     private int vy;
     private float angle;
+    private int initialX;
+    private int initialY;
 
     private final int R = 2;
     private final float ROTATIONSPEED = 3.0f;
@@ -62,6 +63,8 @@ public class Tank extends GameObject{
 
         this.prevX = x;
         this.prevY = y;
+        this.initialX = x;
+        this.initialY = y;
     }
 
     public Rectangle getHitBox() {
@@ -297,9 +300,11 @@ public class Tank extends GameObject{
         }
     }
 
-    private void nextLife() {
+    public void nextLife() {
         lives--;
         setHealth(5);
+        this.setX(initialX);
+        this.setY(initialY);
     }
 
     public void isCollided() {
