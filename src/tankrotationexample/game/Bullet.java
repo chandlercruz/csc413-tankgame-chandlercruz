@@ -6,12 +6,16 @@ import java.awt.*;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
-public class Bullet {
+public class Bullet extends GameObject {
     int x, y, vx, vy;
     float angle;
     int R = 7;
     BufferedImage bulletImage;
     Rectangle hitBox;
+    boolean exists = true;
+    int state = 1;
+    boolean deadly = false;
+    int counter = 0;
 
     public Bullet(int x, int y, float angle, BufferedImage bulletImage) {
         this.x = x;
@@ -21,32 +25,42 @@ public class Bullet {
         this.hitBox = new Rectangle(x,y,this.bulletImage.getWidth(), this.bulletImage.getHeight());
     }
 
+    @Override
+    public void lowerState(){state--;}
+
+    @Override
+    public int getState() {return state;}
+
+    public Rectangle getHitBox() {
+        return hitBox.getBounds();
+    }
+
     public void moveForward() {
         vx = (int) Math.round(R * Math.cos(Math.toRadians(angle)));
         vy = (int) Math.round(R * Math.sin(Math.toRadians(angle)));
         x += vx;
         y += vy;
+        this.hitBox.setLocation(x, y);
+        counter++;
+        if(counter > 15) {deadly = true;}
         checkBorder();
     }
 
+    public boolean doesExist() {return exists;}
+    public boolean getDeadly() {return deadly;}
+    public void setExists(boolean exists) {this.exists = exists;}
+    public void setDeadly(boolean deadly) {this.deadly = deadly;}
+
     public void checkBorder() {
-        if (x < 256) {
-            x = 256;
-        }
-        if (x >= GameConstants.WORLD_WIDTH - 352) {
-            x = GameConstants.WORLD_WIDTH - 352;
-        }
-        if (y < 384) {
-            y = 384;
-        }
-        if (y >= GameConstants.WORLD_HEIGHT - 448) {
-            y = GameConstants.WORLD_HEIGHT - 448;
+        if (x < 256 || y < 384 || x >= GameConstants.WORLD_WIDTH - 340 || y >= GameConstants.WORLD_HEIGHT - 410) {
+            exists = false;
         }
     }
 
     public void update() {
-        moveForward();
+        if(exists) moveForward();
     }
+
     public void drawImage(Graphics g) {
         AffineTransform rotation = AffineTransform.getTranslateInstance(x, y);
         rotation.rotate(Math.toRadians(angle), this.bulletImage.getWidth() / 2.0, this.bulletImage.getHeight() / 2.0);

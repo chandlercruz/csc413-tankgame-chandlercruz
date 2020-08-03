@@ -18,4 +18,6 @@ public class GameConstants {
 
     public static final int TANK_TWO_POSITION_X = 1612;
     public static final int TANK_TWO_POSITION_Y = 1612;
+
+    public static final int COLLISION_OFFSET = 5;
 }

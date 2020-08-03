@@ -29,13 +29,12 @@ import static javax.imageio.ImageIO.read;
 public class TRE extends JPanel implements Runnable {
 
     private BufferedImage world;
-    public static BufferedImage bulletImage;
-    private Tank t1;
-    private Tank t2;
     private Launcher lf;
     static long tick = 0;
 
-    ArrayList<Wall> walls;
+//    ArrayList<Wall> walls;
+    public static ArrayList<GameObject> gameObjects;
+    public static ArrayList<Tank> tanks;
 
     public TRE(Launcher lf){
         this.lf = lf;
@@ -47,14 +46,21 @@ public class TRE extends JPanel implements Runnable {
            this.resetGame();
            while (true) {
                 this.tick++;
-                this.t1.update(); // update tank
-                this.t2.update();
+                this.gameObjects.forEach(gameObject -> gameObject.update());
+                this.tanks.forEach(tank -> tank.update());
+                CollisionDetector.checkWallCollisions();
                 this.repaint();   // redraw game
                 Thread.sleep(1000 / 144); //sleep for a few milliseconds
                 /*
                  * simulate an end game event
                  * we will do this with by ending the game when drawn 2000 frames have been drawn
                  */
+               for (Tank tank : this.tanks) {
+                   if(tank.getHealth() <= 0) {
+                       this.lf.setFrame("end");
+                       return;
+                   }
+               }
 //                if(this.tick > 2000){
 //                    this.lf.setFrame("end");
 //                    return;
@@ -70,11 +76,16 @@ public class TRE extends JPanel implements Runnable {
      */
     public void resetGame(){
         this.tick = 0;
-        this.t1.setX(GameConstants.TANK_ONE_POSITION_X);
-        this.t1.setY(GameConstants.TANK_ONE_POSITION_Y);
+        this.tanks.get(tanks.size()-2).setX(GameConstants.TANK_ONE_POSITION_X);
+        this.tanks.get(tanks.size()-2).setY(GameConstants.TANK_ONE_POSITION_Y);
 
-        this.t2.setX(GameConstants.TANK_TWO_POSITION_X);
-        this.t2.setY(GameConstants.TANK_TWO_POSITION_Y);
+        this.tanks.get(tanks.size()-1).setX(GameConstants.TANK_TWO_POSITION_X);
+        this.tanks.get(tanks.size()-1).setY(GameConstants.TANK_TWO_POSITION_Y);
+
+        this.tanks.forEach(tank -> {
+            tank.setHealth(5);
+            tank.setLives(3);
+        });
     }
 
 
@@ -87,21 +98,13 @@ public class TRE extends JPanel implements Runnable {
                                        GameConstants.WORLD_HEIGHT,
                                        BufferedImage.TYPE_INT_RGB);
 
-        BufferedImage t1img = null;
-        BufferedImage t2img = null;
-        BufferedImage breakWall = null;
-        BufferedImage unBreakWall = null;
-        walls = new ArrayList<>();
+        this.gameObjects = new ArrayList<>();
+        this.tanks = new ArrayList<>();
         try {
             /*
              * note class loaders read files from the out folder (build folder in Netbeans) and not the
              * current working directory.
              */
-            t1img = read(Objects.requireNonNull(TRE.class.getClassLoader().getResource("Tank1.gif")));
-            t2img = read(Objects.requireNonNull(TRE.class.getClassLoader().getResource("Tank2.gif")));
-            bulletImage = read(Objects.requireNonNull(TRE.class.getClassLoader().getResource("Shell.gif")));
-            breakWall = read(Objects.requireNonNull(TRE.class.getClassLoader().getResource("Wall2.gif")));
-            unBreakWall = read(Objects.requireNonNull(TRE.class.getClassLoader().getResource("Wall1.gif")));
 
             InputStreamReader isr = new InputStreamReader(TRE.class.getClassLoader().getResourceAsStream("maps/map1"));
             BufferedReader mapReader = new BufferedReader(isr);
@@ -120,12 +123,14 @@ public class TRE extends JPanel implements Runnable {
                 for(int curCol = 0; curCol < numCols; curCol++) {
                     switch(mapInfo[curCol]) {
                         case "2":
-                            this.walls.add(new BreakWall(curCol*32, curRow*32, breakWall));
+                            this.gameObjects.add(new BreakWall(curCol*32, curRow*32, Resource.getResourceImage("break")));
                             break;
                         case "3":
                         case "9":
-                            this.walls.add(new UnBreakWall(curCol*32, curRow*32, unBreakWall));
+                            this.gameObjects.add(new UnBreakWall(curCol*32, curRow*32, Resource.getResourceImage("unbreak")));
                             break;
+                        case "4":
+                            this.gameObjects.add(new PowerUp(curCol*32, curRow*32, Resource.getResourceImage("powerup")));
 
                     }
                 }
@@ -135,10 +140,12 @@ public class TRE extends JPanel implements Runnable {
             ex.printStackTrace();
         }
 
-        t1 = new Tank(GameConstants.TANK_ONE_POSITION_X, GameConstants.TANK_ONE_POSITION_Y, 0, 0, 0, t1img);
-        t2 = new Tank(GameConstants.TANK_TWO_POSITION_X, GameConstants.TANK_TWO_POSITION_Y, 0, 0, 0, t1img);
+        Tank t1 = new Tank(GameConstants.TANK_ONE_POSITION_X, GameConstants.TANK_ONE_POSITION_Y, 0, 0, 0, Resource.getResourceImage("tank1"));
+        Tank t2 = new Tank(GameConstants.TANK_TWO_POSITION_X, GameConstants.TANK_TWO_POSITION_Y, 0, 0, 0, Resource.getResourceImage("tank2"));
         TankControl tc1 = new TankControl(t1, KeyEvent.VK_W, KeyEvent.VK_S, KeyEvent.VK_A, KeyEvent.VK_D, KeyEvent.VK_SPACE);
         TankControl tc2 = new TankControl(t2, KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_ENTER);
+        this.tanks.add(t1);
+        this.tanks.add(t2);
         this.setBackground(Color.BLACK);
         this.lf.getJf().addKeyListener(tc1);
         this.lf.getJf().addKeyListener(tc2);
@@ -151,9 +158,12 @@ public class TRE extends JPanel implements Runnable {
         Graphics2D buffer = world.createGraphics();
         buffer.setColor(Color.BLACK);
         buffer.fillRect(0,0,GameConstants.WORLD_WIDTH,GameConstants.WORLD_HEIGHT);
-        this.walls.forEach(wall->wall.drawImage(buffer));
-        this.t1.drawImage(buffer);
-        this.t2.drawImage(buffer);
+
+        this.gameObjects.forEach(gameObject -> gameObject.drawImage(buffer));
+        this.tanks.forEach(tank -> tank.drawImage(buffer));
+        Tank t1 = (Tank) this.tanks.get(this.tanks.size()-2);
+        Tank t2 = (Tank) this.tanks.get(this.tanks.size()-1);
+
         BufferedImage leftHalf = world.getSubimage(t1.getX()-256,t1.getY()-384,GameConstants.GAME_SCREEN_WIDTH/2, GameConstants.GAME_SCREEN_HEIGHT);
         BufferedImage rightHalf = world.getSubimage(t2.getX()-256,t2.getY()-384,GameConstants.GAME_SCREEN_WIDTH/2, GameConstants.GAME_SCREEN_HEIGHT);
         BufferedImage mm = world.getSubimage(224,352,GameConstants.WORLD_WIDTH-256, GameConstants.WORLD_HEIGHT-384);
@@ -162,7 +172,6 @@ public class TRE extends JPanel implements Runnable {
         g2.scale(.10, .10);
         g2.drawImage(mm, 2112*2, 1056, null);
 
-        //world.getsubimage() minimap
     }
 
 }
