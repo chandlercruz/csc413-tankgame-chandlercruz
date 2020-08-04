@@ -3,6 +3,7 @@ package tankrotationexample.game;
 
 
 import tankrotationexample.GameConstants;
+import tankrotationexample.game.Resources.Resource;
 
 import java.awt.*;
 import java.awt.geom.AffineTransform;
@@ -23,7 +24,7 @@ public class Tank extends GameObject{
     private int initialX;
     private int initialY;
 
-    private final int R = 2;
+    private int R = 2;
     private final float ROTATIONSPEED = 3.0f;
     private Rectangle hitBox;
     private ArrayList<Bullet> ammo;
@@ -40,14 +41,10 @@ public class Tank extends GameObject{
     private boolean ShootReady;
 
     private boolean doublePower = false;
+    private boolean shield = false;
+    private int shieldCounter = 0;
 
     private boolean isCollided;
-    private boolean movingUp;
-    private boolean movingLeft;
-    private boolean movingStraightX;
-    private boolean movingStraightY;
-    private int prevX;
-    private int prevY;
     private TankMovement tankMove;
 
 
@@ -62,28 +59,31 @@ public class Tank extends GameObject{
         this.ammo = new ArrayList<>();
         ShootReady = true;
 
-        this.prevX = x;
-        this.prevY = y;
         this.initialX = x;
         this.initialY = y;
         this.tankMove = new TankMovement(x, y);
     }
 
-    public Rectangle getHitBox() {
-        return hitBox.getBounds();
-    }
-
     void setX(int x){ this.x = x; }
-
     void setY(int y) { this. y = y;}
-
     int getX(){return x;}
     int getY(){return y;}
 
+    public Rectangle getHitBox() {
+        return hitBox.getBounds();
+    }
     public int getHealth() { return health; }
     public int getLives() { return lives;}
     public void setHealth(int health) { this.health = health; }
     public void setLives(int lives) { this.lives = lives; }
+    public void setDoublePower(boolean bool) {
+        doublePower = bool;
+    }
+    public void setSpeed(int speed) { this.R = speed; }
+    public void setShield() {
+        shield = true;
+        shieldCounter = 0;
+    }
 
     void toggleUpPressed() {
         this.UpPressed = true;
@@ -127,8 +127,6 @@ public class Tank extends GameObject{
         this.ShootPressed = false;
     }
 
-    void unToggleShootReady(){ this.ShootReady = false; }
-
     @Override
     public void update() {
         if (this.UpPressed) {
@@ -145,6 +143,7 @@ public class Tank extends GameObject{
             this.rotateRight();
         }
         if (this.ShootPressed && ShootReady == true) {
+            System.out.println("shot bullet");
             ShootReady = false;
             Bullet b = new Bullet(x,y,angle, Resource.getResourceImage("bullet"));
             this.ammo.add(b);
@@ -156,6 +155,8 @@ public class Tank extends GameObject{
         this.ammo.forEach(bullet -> bullet.update());
         CollisionDetector.checkBulletCollisions(ammo);
         this.ammo.removeIf(bullet -> !bullet.doesExist());
+
+        if(shieldCounter > 1000) {shield = false;}
     }
 
     private void rotateLeft() {
@@ -184,17 +185,17 @@ public class Tank extends GameObject{
     }
 
     private void checkBorder() {
-        if (x < 256) {
-            x = 256;
+        if (x < 32) {
+            x = 32;
         }
-        if (x >= GameConstants.WORLD_WIDTH - 352) {
-            x = GameConstants.WORLD_WIDTH - 352;
+        if (x >= GameConstants.WORLD_WIDTH - 96) {
+            x = GameConstants.WORLD_WIDTH - 96;
         }
-        if (y < 384) {
-            y = 384;
+        if (y < 32) {
+            y = 32;
         }
-        if (y >= GameConstants.WORLD_HEIGHT - 448) {
-            y = GameConstants.WORLD_HEIGHT - 448;
+        if (y >= GameConstants.WORLD_HEIGHT - 128) {
+            y = GameConstants.WORLD_HEIGHT - 128;
         }
     }
 
@@ -203,15 +204,12 @@ public class Tank extends GameObject{
         setHealth(5);
         this.setX(initialX);
         this.setY(initialY);
+        this.hitBox.setLocation(initialX,initialY);
     }
 
     public void isCollided() {
 
         isCollided = true;
-    }
-
-    public void poweredUp() {
-        doublePower = true;
     }
 
     @Override
@@ -223,7 +221,7 @@ public class Tank extends GameObject{
     public int getState() {return 1;}
 
     @Override
-    public void lowerState() {health--;}
+    public void lowerState() { if(!shield) { health--;} }
 
 
     public void drawImage(Graphics g) {
@@ -231,6 +229,11 @@ public class Tank extends GameObject{
         rotation.rotate(Math.toRadians(angle), this.img.getWidth() / 2.0, this.img.getHeight() / 2.0);
         Graphics2D g2d = (Graphics2D) g;
         g2d.drawImage(this.img, rotation, null);
+
+        if(shield) {
+            g2d.drawImage(Resource.getResourceImage("shield2"), x, y, null);
+            shieldCounter++;
+        }
 
         this.ammo.forEach(bullet -> bullet.drawImage(g));
 

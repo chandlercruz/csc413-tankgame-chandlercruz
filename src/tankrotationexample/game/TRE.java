@@ -8,6 +8,7 @@ package tankrotationexample.game;
 
 import tankrotationexample.GameConstants;
 import tankrotationexample.Launcher;
+import tankrotationexample.game.Resources.Resource;
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +18,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Objects;
 
 
 import static javax.imageio.ImageIO.read;
@@ -30,6 +30,7 @@ public class TRE extends JPanel implements Runnable {
 
     private BufferedImage world;
     private Launcher lf;
+    private Camera camera;
     static long tick = 0;
 
 //    ArrayList<Wall> walls;
@@ -67,10 +68,6 @@ public class TRE extends JPanel implements Runnable {
                        }
                    }
                }
-//                if(this.tick > 2000){
-//                    this.lf.setFrame("end");
-//                    return;
-//                }
             }
        } catch (InterruptedException ignored) {
            System.out.println(ignored);
@@ -136,7 +133,16 @@ public class TRE extends JPanel implements Runnable {
                             this.gameObjects.add(new UnBreakWall(curCol*32, curRow*32, Resource.getResourceImage("unbreak")));
                             break;
                         case "4":
-                            this.gameObjects.add(new PowerUp(curCol*32, curRow*32, Resource.getResourceImage("powerup")));
+                            this.gameObjects.add(new DoublePower(curCol*32, curRow*32, Resource.getResourceImage("powerup")));
+                            break;
+                        case "5":
+                            this.gameObjects.add(new Speed(curCol*32, curRow*32, Resource.getResourceImage("speed")));
+                            break;
+                        case "6":
+                            this.gameObjects.add(new Medpack(curCol*32, curRow*32, Resource.getResourceImage("medpack")));
+                            break;
+                        case "7":
+                            this.gameObjects.add(new Shield(curCol*32, curRow*32, Resource.getResourceImage("shield")));
 
                     }
                 }
@@ -152,6 +158,7 @@ public class TRE extends JPanel implements Runnable {
         TankControl tc2 = new TankControl(t2, KeyEvent.VK_UP, KeyEvent.VK_DOWN, KeyEvent.VK_LEFT, KeyEvent.VK_RIGHT, KeyEvent.VK_ENTER);
         this.tanks.add(t1);
         this.tanks.add(t2);
+        this.camera = new Camera(tanks);
         this.setBackground(Color.BLACK);
         this.lf.getJf().addKeyListener(tc1);
         this.lf.getJf().addKeyListener(tc2);
@@ -165,19 +172,14 @@ public class TRE extends JPanel implements Runnable {
         buffer.setColor(Color.BLACK);
         buffer.fillRect(0,0,GameConstants.WORLD_WIDTH,GameConstants.WORLD_HEIGHT);
 
+        for(int i=0;i<7;i++) {
+            for(int j=0;j<9;j++) {
+                buffer.drawImage(Resource.getResourceImage("background"), i*320, j*240, null);
+            }
+        }
         this.gameObjects.forEach(gameObject -> gameObject.drawImage(buffer));
         this.tanks.forEach(tank -> tank.drawImage(buffer));
-        Tank t1 = (Tank) this.tanks.get(this.tanks.size()-2);
-        Tank t2 = (Tank) this.tanks.get(this.tanks.size()-1);
-
-        BufferedImage leftHalf = world.getSubimage(t1.getX()-256,t1.getY()-384,GameConstants.GAME_SCREEN_WIDTH/2, GameConstants.GAME_SCREEN_HEIGHT);
-        BufferedImage rightHalf = world.getSubimage(t2.getX()-256,t2.getY()-384,GameConstants.GAME_SCREEN_WIDTH/2, GameConstants.GAME_SCREEN_HEIGHT);
-        BufferedImage mm = world.getSubimage(224,352,GameConstants.WORLD_WIDTH-256, GameConstants.WORLD_HEIGHT-384);
-        g2.drawImage(leftHalf,0,0,null);
-        g2.drawImage(rightHalf,GameConstants.GAME_SCREEN_WIDTH/2,0,null);
-        HUD.displayHUD(tanks, g2);
-        g2.scale(.10, .10);
-        g2.drawImage(mm, 2112*2, 1056, null);
+        camera.displayCamera(tanks, world, g2);
 
     }
 

@@ -42,17 +42,16 @@ public class Bullet extends GameObject {
         y += vy;
         this.hitBox.setLocation(x, y);
         counter++;
-        if(counter > 15) {deadly = true;}
+        if(counter > 20) {deadly = true;}
         checkBorder();
     }
 
     public boolean doesExist() {return exists;}
     public boolean getDeadly() {return deadly;}
     public void setExists(boolean exists) {this.exists = exists;}
-    public void setDeadly(boolean deadly) {this.deadly = deadly;}
 
     public void checkBorder() {
-        if (x < 256 || y < 384 || x >= GameConstants.WORLD_WIDTH - 340 || y >= GameConstants.WORLD_HEIGHT - 410) {
+        if (x < 32 || y < 32 || x >= GameConstants.WORLD_WIDTH - 96 || y >= GameConstants.WORLD_HEIGHT - 128) {
             exists = false;
         }
     }

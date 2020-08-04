@@ -29,7 +29,6 @@ public class TankMovement {
         if(prevY == y) {movingStraightY = true;}
         else {movingStraightY = false;}
 
-        System.out.println("moving up =" + movingUp + ", moving left =" + movingLeft);
         prevX = x;
         prevY = y;
     }

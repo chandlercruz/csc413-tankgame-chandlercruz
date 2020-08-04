@@ -1,19 +1,27 @@
 package tankrotationexample.game;
 
 import tankrotationexample.GameConstants;
+import tankrotationexample.game.Resources.Resource;
 
 import java.awt.*;
-import java.awt.geom.AffineTransform;
 import java.util.ArrayList;
 
 public class HUD {
-    public static void displayHUD(ArrayList<Tank> tanks, Graphics g) {
+    public void displayHUD(ArrayList<Tank> tanks, Graphics g) {
         Graphics2D g2d = (Graphics2D)g;
-        for(int i=0;i<tanks.get(tanks.size()-2).getLives();i++){
-            g2d.drawImage(Resource.getResourceImage("heart"),(i*40),0,null);
+        g.setColor(Color.GREEN);
+
+        int counter = 0;
+        for (Tank tank : tanks) {
+            for(int i=0;i<tank.getLives();i++) {
+                g2d.drawImage(Resource.getResourceImage("heart"),(counter*GameConstants.GAME_SCREEN_WIDTH/2) + (i*40),0,null);
+            }
+            for(int i=0;i<tank.getHealth();i++) {
+                g2d.fillRect((counter*GameConstants.GAME_SCREEN_WIDTH/2) + 130+i*20, 0, 20, 32);
+            }
+            counter++;
         }
-        for(int i=0;i<tanks.get(tanks.size()-1).getLives();i++){
-            g2d.drawImage(Resource.getResourceImage("heart"),(GameConstants.GAME_SCREEN_WIDTH/2+i*40),0,null);
-        }
+
+
     }
 }

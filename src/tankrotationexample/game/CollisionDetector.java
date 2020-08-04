@@ -14,7 +14,7 @@ public class CollisionDetector {
                         tank.isCollided();
                     }
                     else if(gameObject instanceof PowerUp) {
-                        tank.poweredUp();
+                        ((PowerUp) gameObject).poweredUp(tank);
                         gameObject.lowerState();
 
                     }
@@ -29,19 +29,19 @@ public class CollisionDetector {
         ammo.forEach(bullet -> {
             TRE.tanks.forEach(tank -> {
                 if(tank.getHitBox().intersects(bullet.getHitBox()) && bullet.getDeadly()) {
-                    tank.setHealth(tank.getHealth()-1);
+                    tank.lowerState();
                     bullet.setExists(false);
                     System.out.println( tank.toString() + " Health: " + tank.getHealth() + " Lives: " + tank.getLives());
                 }
             });
 
             TRE.gameObjects.forEach(gameObject -> {
-                if(gameObject instanceof BreakWall && ((BreakWall) gameObject).hitBox.intersects(bullet.getHitBox())) {
-                    ((BreakWall) gameObject).lowerState();
+                if((gameObject instanceof Wall) && gameObject.getHitBox().intersects(bullet.getHitBox())) {
+                    gameObject.lowerState();
                     bullet.setExists(false);
                 }
             });
         });
-        TRE.gameObjects.removeIf(gameObject -> (gameObject instanceof BreakWall && ((BreakWall) gameObject).getState()<1));
+        TRE.gameObjects.removeIf(gameObject -> (gameObject instanceof BreakWall && gameObject.getState()<1));
     }
 }
