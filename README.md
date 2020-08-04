@@ -1,7 +1,7 @@
 # csc413-tankgame
 
-## Student Name  :
-## Student ID    :
+## Student Name  : Chandler Cruz
+## Student ID    : 917048657
 
 
 ## src folder is to be used for source code only.
