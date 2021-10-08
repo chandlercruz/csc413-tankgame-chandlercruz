@@ -1,0 +1,12 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\src",
+    "\\src\\Spectankular",
+    "\\src\\Spectankular\\game",
+    "\\src\\Spectankular\\game\\GameObjects",
+    "\\src\\Spectankular\\game\\TankClasses"
+  ],
+  "SelectedNode": "\\src\\Spectankular\\game\\CollisionDetector.java",
+  "PreviewInSolutionExplorer": false
+}

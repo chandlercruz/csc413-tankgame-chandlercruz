@@ -1,3 +1,9 @@
+/**
+ * This code was used in a tank game I coded for my CSC 413 class.
+ * This code was run every time the game rendered a frame, and
+ * was used to detect if an objects were colliding with each other.
+ */
+
 package Spectankular.game;
 
 import Spectankular.game.GameObjects.Bullet;
